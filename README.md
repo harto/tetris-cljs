@@ -16,4 +16,4 @@ To connect to the environment from Emacs/Cider, run:
 
 Then start a Figwheel REPL:
 
-    (figwheel-sidecar.repl-api/cljs-repl)
+    (tetris.development/repl)
