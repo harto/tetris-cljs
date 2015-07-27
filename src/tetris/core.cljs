@@ -1,10 +1,14 @@
 (ns ^:figwheel-always tetris.core
     (:refer-clojure :exclude (update))
-    (:require (tetris.lib.keyboard :as keyboard))
+    (:require (tetris.lib.canvas :as canvas)
+              (tetris.lib.keyboard :as keyboard))
     (:use (cljs.core.async :only (<!)))
     (:use-macros (cljs.core.async.macros :only (go))))
 
 (enable-console-print!)
+
+(def canvas
+  (memoize #(.getElementById js/document "canvas")))
 
 (defonce state
   (atom nil))
@@ -48,13 +52,17 @@
 (defn update [state time]
   state)
 
+(defn repaint [g state]
+  (canvas/clear! g))
+
 (defn tick [time]
   (let [commands (player-commands @event-queue)
         new-state (-> @state
                       (process-commands commands)
                       (update time))]
     (reset! event-queue #queue[])
-    (reset! state new-state)))
+    (reset! state new-state)
+    (repaint (canvas/context (canvas)) state)))
 
 (defn install-key-event-handler []
   (let [key-events (keyboard/capture-events! js/document)]
