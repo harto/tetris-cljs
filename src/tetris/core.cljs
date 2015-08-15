@@ -1,7 +1,7 @@
 (ns ^:figwheel-always tetris.core
     (:refer-clojure :exclude (update))
-    (:require (tetris.lib.canvas :as canvas)
-              (tetris.lib.keyboard :as keyboard))
+    (:require (tetris.command :as cmd)
+              (tetris.lib.canvas :as canvas))
     (:use (cljs.core.async :only (<!)))
     (:use-macros (cljs.core.async.macros :only (go))))
 
@@ -13,38 +13,10 @@
 (defonce state
   (atom nil))
 
-(defonce event-queue
+(defonce command-queue
   (atom #queue[]))
 
-(defn rotate-current-piece [state]
-  (println "rotate-current-piece")
-  state)
-
-(defn drop-current-piece [state]
-  (println "drop-current-piece")
-  state)
-
-(defn move-current-piece-left [state]
-  (println "move-current-piece-left")
-  state)
-
-(defn move-current-piece-right [state]
-  (println "move-current-piece-right")
-  state)
-
-(def commands {:up rotate-current-piece
-               :down drop-current-piece
-               :left move-current-piece-left
-               :right move-current-piece-right})
-
-(defn player-commands [key-events]
-  (->> key-events
-       (filter #(= :key-down (:type %)))
-       (map #(:key %))
-       (set)
-       (map #(get commands % identity))))
-
-(defn process-commands [state commands]
+(defn apply-commands [state commands]
   (reduce (fn [state command] (command state))
           state
           commands))
@@ -56,18 +28,18 @@
   (canvas/clear! g))
 
 (defn tick [time]
-  (let [commands (player-commands @event-queue)
+  (let [commands @command-queue
         new-state (-> @state
-                      (process-commands commands)
+                      (apply-commands commands)
                       (update time))]
-    (reset! event-queue #queue[])
+    (reset! command-queue #queue[])
     (reset! state new-state)
     (repaint (canvas/context (canvas)) state)))
 
-(defn install-key-event-handler []
-  (let [key-events (keyboard/capture-events! js/document)]
+(defn install-command-listener []
+  (let [commands (cmd/capture-commands!)]
     (go (while true
-          (swap! event-queue conj (<! key-events))))))
+          (swap! command-queue conj (<! commands))))))
 
 (defn repeatedly-request-animation-frame []
   (.requestAnimationFrame js/window
@@ -77,5 +49,5 @@
 
 (defonce setup
   (do
-    (install-key-event-handler)
+    (install-command-listener)
     (repeatedly-request-animation-frame)))
