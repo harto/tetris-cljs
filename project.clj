@@ -17,9 +17,9 @@
     :builds [{:id "dev"
               :source-paths ["src"]
 
-              :figwheel { :on-jsload "tetris.core/on-js-reload" }
+              :figwheel { :on-jsload "tetris.main/on-js-reload" }
 
-              :compiler {:main tetris.core
+              :compiler {:main tetris.main
                          :asset-path "js/compiled/out"
                          :output-to "resources/public/js/compiled/tetris.js"
                          :output-dir "resources/public/js/compiled/out"
@@ -27,7 +27,7 @@
              {:id "min"
               :source-paths ["src"]
               :compiler {:output-to "resources/public/js/compiled/tetris.js"
-                         :main tetris.core
+                         :main tetris.main
                          :optimizations :advanced
                          :pretty-print false}}]}
 

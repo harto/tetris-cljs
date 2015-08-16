@@ -18,6 +18,9 @@
     (aset ctx k v))
   ctx)
 
-(defn fill-text! [ctx x y s]
-  (.fillText ctx s x y)
+(defn fill-rect! [ctx x y w h]
+  (.fillRect ctx x y w h)
   ctx)
+
+(defprotocol Renderable
+  (render [this ctx]))
