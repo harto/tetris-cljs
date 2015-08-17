@@ -2,31 +2,15 @@
     (:require (tetris.lib.canvas :as canvas)
               (tetris.tile :as tile)))
 
-(def layouts
+(defrecord Tetromino [tiles x y]
+  canvas/Renderable
+  (render [this g]
+    (canvas/save! g)
+    (canvas/translate! g x y)
+    (doseq [t tiles] (canvas/render t g))
+    (canvas/restore! g)))
 
-  {:T ["###"
-       " # "]
-
-   :J [" #"
-       " #"
-       "##"]
-
-   :L ["# "
-       "# "
-       "##"]
-
-   :S [" ##"
-       "## "]
-
-   :Z ["## "
-       " ##"]
-
-   :O ["##"
-       "##"]
-
-   :I ["####"]})
-
-(defn layout->tiles [layout color]
+(defn tiles [{:keys [layout color]}]
   (remove nil?
           (map-indexed (fn [y row]
                          (map-indexed (fn [x col]
@@ -36,11 +20,38 @@
                                       row))
                        layout)))
 
-(defn create [shape color]
-  (let [layout (get layouts shape)]
-    (layout->tiles layout color)))
+(def tetrominoes
 
-(defrecord Tetromino [x y tiles]
-  canvas/Renderable
-  (render [this g]
-    #_FIXME))
+  (map #(->Tetromino (tiles %) nil nil)
+
+       [{:layout ["###"
+                  " # "]
+         :color "lime"}
+
+        {:layout [" #"
+                  " #"
+                  "##"]
+         :color "yellow"}
+
+        {:layout ["# "
+                  "# "
+                  "##"]
+         :color "magenta"}
+
+        {:layout [" ##"
+                  "## "]
+         :color "cyan"}
+
+        {:layout ["## "
+                  " ##"]
+         :color "orange"}
+
+        {:layout ["##"
+                  "##"]
+         :color "blue"}
+
+        {:layout ["####"]
+         :color "red"}]))
+
+(defn random []
+  (rand-nth tetrominoes))
