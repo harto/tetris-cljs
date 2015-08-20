@@ -15,7 +15,9 @@
        (map-indexed (fn [y row]
                          (map-indexed (fn [x col]
                                         (if (= col \#)
-                                          (tile/->Tile x y color)
+                                          (tile/->Tile (* x (tile/width))
+                                                       (* y (tile/height))
+                                                       color)
                                           nil))
                                       row)))
        (apply concat)
