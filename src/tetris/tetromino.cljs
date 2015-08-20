@@ -11,14 +11,14 @@
     (canvas/restore! g)))
 
 (defn tiles [{:keys [layout color]}]
-  (remove nil?
-          (map-indexed (fn [y row]
+  (->> layout
+       (map-indexed (fn [y row]
                          (map-indexed (fn [x col]
                                         (if (= col \#)
                                           (tile/->Tile x y color)
                                           nil))
-                                      row))
-                       layout)))
+                                      row)))
+       (remove nil?)))
 
 (def tetrominoes
 
