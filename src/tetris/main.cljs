@@ -11,7 +11,7 @@
 (enable-console-print!)
 
 (defonce state
-  (atom nil))
+  (atom {:current (tetromino/random)}))
 
 (defonce command-queue
   (atom #queue[]))
@@ -26,7 +26,7 @@
 
 (defn repaint [g state]
   (canvas/clear! g)
-  (canvas/render (tile/->Tile 50 50 "#f00") g))
+  (canvas/render (get state :current) g))
 
 (defn tick [time]
   (let [commands @command-queue
