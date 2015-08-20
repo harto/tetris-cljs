@@ -18,6 +18,7 @@
                                           (tile/->Tile x y color)
                                           nil))
                                       row)))
+       (apply concat)
        (remove nil?)))
 
 (def tetrominoes
