@@ -1,25 +1,24 @@
 (ns ^:figwheel-always tetris.tetromino
     (:require (tetris.lib.canvas :as canvas)
-              (tetris.tile :as tile)))
+              (tetris.tile :as tile))
+    (:use (tetris.core :only (col->x row->y))))
 
-(defrecord Tetromino [tiles x y]
+(defrecord Tetromino [tiles col row]
   canvas/Renderable
   (render [this g]
     (canvas/save! g)
-    (canvas/translate! g x y)
+    (canvas/translate! g (col->x col) (row->y row))
     (doseq [t tiles] (canvas/render t g))
     (canvas/restore! g)))
 
 (defn tiles [{:keys [layout color]}]
   (->> layout
-       (map-indexed (fn [y row]
-                         (map-indexed (fn [x col]
-                                        (if (= col \#)
-                                          (tile/->Tile (* x (tile/width))
-                                                       (* y (tile/height))
-                                                       color)
+       (map-indexed (fn [row cs]
+                         (map-indexed (fn [col c]
+                                        (if (= c \#)
+                                          (tile/->Tile col row color)
                                           nil))
-                                      row)))
+                                      cs)))
        (apply concat)
        (remove nil?)))
 

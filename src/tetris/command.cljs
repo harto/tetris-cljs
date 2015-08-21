@@ -13,11 +13,11 @@
 
 (defn move-current-piece-left [state]
   (println "move-current-piece-left")
-  state)
+  (update-in state [:current :col] dec))
 
 (defn move-current-piece-right [state]
   (println "move-current-piece-right")
-  state)
+  (update-in state [:current :col] inc))
 
 (def commands {:up rotate-current-piece
                :down drop-current-piece

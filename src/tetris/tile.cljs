@@ -1,16 +1,10 @@
 (ns ^:figwheel-always tetris.tile
     (:require (tetris.lib.canvas :as canvas))
-    (:use (tetris.core :only (canvas cols rows))))
+    (:use (tetris.core :only (canvas col->x col-width row->y row-height))))
 
-(defn width []
-  (/ (.-clientWidth (canvas)) cols))
-
-(defn height []
-  (/ (.-clientHeight (canvas)) rows))
-
-(defrecord Tile [x y color]
+(defrecord Tile [col row color]
   canvas/Renderable
   (render [this g]
     (doto g
       (canvas/set-properties! {"fillStyle" color})
-      (canvas/fill-rect! x y (width) (height)))))
+      (canvas/fill-rect! (col->x col) (row->y row) (col-width) (row-height)))))
