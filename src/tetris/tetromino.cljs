@@ -1,7 +1,7 @@
 (ns ^:figwheel-always tetris.tetromino
     (:require (tetris.lib.canvas :as canvas)
               (tetris.tile :as tile))
-    (:use (tetris.core :only (col->x row->y))))
+    (:use (tetris.core :only (col->x cols row->y))))
 
 (defrecord Tetromino [tiles col row]
   canvas/Renderable
@@ -10,6 +10,18 @@
     (canvas/translate! g (col->x col) (row->y row))
     (doseq [t tiles] (canvas/render t g))
     (canvas/restore! g)))
+
+(defn extent [tetromino dimension]
+  (->> (:tiles tetromino)
+       (map dimension)
+       (apply max)
+       (inc)))
+
+(defn width [tetromino]
+  (extent tetromino :col))
+
+(defn height [tetromino]
+  (extent tetromino :row))
 
 (defn tiles [{:keys [layout color]}]
   (->> layout
@@ -54,4 +66,5 @@
          :color "red"}]))
 
 (defn random []
-  (rand-nth tetrominoes))
+  (let [t (rand-nth tetrominoes)]
+    (assoc t :col (quot (- cols (width t)) 2) :row 0)))
