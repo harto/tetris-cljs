@@ -1,5 +1,5 @@
 (ns ^:figwheel-always tetris.main
-    (:refer-clojure :exclude (update))
+    (:refer-clojure :exclude (drop update))
     (:require (tetris.command :as cmd)
               (tetris.lib.canvas :as canvas)
               (tetris.tetromino :as tetromino)
@@ -13,13 +13,30 @@
 (defonce state
   (atom {:current (tetromino/random)}))
 
-(defonce command-queue
-  (atom #queue[]))
+(defn rotate [state]
+  (println "rotate")
+  state)
+
+(defn drop [state]
+  (assoc-in state [:current] (tetromino/random)))
+
+(defn move-left [state]
+  (update-in state [:current :col] dec))
+
+(defn move-right [state]
+  (update-in state [:current :col] inc))
+
+(def handlers {:rotate rotate
+               :drop drop
+               :move-left move-left
+               :move-right move-right})
 
 (defn apply-commands [state commands]
-  (reduce (fn [state command] (command state))
-          state
-          commands))
+  (->> commands
+       (map #(get handlers %))
+       (reduce (fn [state f]
+                 (f state))
+               state)))
 
 (defn update [state time]
   state)
@@ -27,6 +44,9 @@
 (defn repaint [g state]
   (canvas/clear! g)
   (canvas/render (get state :current) g))
+
+(defonce command-queue
+  (atom #queue[]))
 
 (defn tick [time]
   (let [commands @command-queue
