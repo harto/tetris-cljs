@@ -30,14 +30,12 @@
                   " # "]
          :color "lime"}
 
-        {:layout [" #"
-                  " #"
-                  "##"]
+        {:layout ["###"
+                  "  #"]
          :color "yellow"}
 
-        {:layout ["# "
-                  "# "
-                  "##"]
+        {:layout ["###"
+                  "#  "]
          :color "magenta"}
 
         {:layout [" ##"
