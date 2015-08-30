@@ -5,7 +5,7 @@
               (tetris.tetromino :as tetromino)
               (tetris.tile :as tile))
     (:use (cljs.core.async :only (<!))
-          (tetris.core :only (canvas)))
+          (tetris.core :only (canvas cols)))
     (:use-macros (cljs.core.async.macros :only (go))))
 
 (enable-console-print!)
@@ -21,10 +21,11 @@
   (assoc-in state [:current] (tetromino/random)))
 
 (defn move-left [state]
-  (update-in state [:current :col] dec))
+  (update-in state [:current :col] #(max 0 (dec %))))
 
 (defn move-right [state]
-  (update-in state [:current :col] inc))
+  (let [max-col (- cols (tetromino/width (get state :current)))]
+    (update-in state [:current :col] #(min max-col (inc %)))))
 
 (def handlers {:rotate rotate
                :drop drop
