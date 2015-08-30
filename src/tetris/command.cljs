@@ -4,9 +4,9 @@
     (:use (cljs.core.async :only (chan put!))))
 
 (def commands {:up :rotate
-               :down :drop
                :left :move-left
-               :right :move-right})
+               :right :move-right
+               :space :drop})
 
 (defn get-command [e]
   (let [pressed-key (kbd/code->name (:keyCode e))]
