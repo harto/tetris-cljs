@@ -11,17 +11,17 @@
     (doseq [t tiles] (canvas/render t g))
     (canvas/restore! g)))
 
-(defn extent [tetromino dimension]
+(defn- count-tiles [tetromino dimension]
   (->> (:tiles tetromino)
        (map dimension)
        (apply max)
        (inc)))
 
 (defn width [tetromino]
-  (extent tetromino :col))
+  (count-tiles tetromino :col))
 
 (defn height [tetromino]
-  (extent tetromino :row))
+  (count-tiles tetromino :row))
 
 (defn tiles [{:keys [layout color]}]
   (->> layout
