@@ -30,6 +30,22 @@
     (render-bounding-box this g)
     (canvas/restore! g)))
 
+(defn rotate [tetromino]
+  (let [multiplier 1
+        offset (-> (max (width tetromino) (height tetromino))
+                   (dec)
+                   (/ 2))]
+    (assoc tetromino :tiles (for [{:keys [col row] :as t} (:tiles tetromino)]
+                              (assoc t
+                                     :col (-> row
+                                              (- offset)
+                                              (* multiplier)
+                                              (+ offset))
+                                     :row (-> col
+                                              (- offset)
+                                              (* (- multiplier))
+                                              (+ offset)))))))
+
 (defn tiles [{:keys [layout color]}]
   (->> layout
        (map-indexed (fn [row cs]
@@ -45,15 +61,18 @@
 
   (map #(->Tetromino (tiles %) nil nil)
 
-       [{:layout ["###"
+       [{:layout ["   "
+                  "###"
                   " # "]
          :color "lime"}
 
-        {:layout ["###"
+        {:layout ["   "
+                  "###"
                   "  #"]
          :color "yellow"}
 
-        {:layout ["###"
+        {:layout ["   "
+                  "###"
                   "#  "]
          :color "magenta"}
 
@@ -69,9 +88,10 @@
                   "##"]
          :color "blue"}
 
-        {:layout ["####"]
+        {:layout ["    "
+                  "####"]
          :color "red"}]))
 
 (defn random []
   (let [t (rand-nth tetrominoes)]
-    (assoc t :col (quot (- cols (width t)) 2) :row 0)))
+    (assoc t :col (quot (- cols (width t)) 2) :row 5)))

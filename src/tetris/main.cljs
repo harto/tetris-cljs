@@ -14,8 +14,7 @@
   (atom {:current (tetromino/random)}))
 
 (defn rotate [state]
-  (println "rotate")
-  state)
+  (update-in state [:current] tetromino/rotate))
 
 (defn drop [state]
   (assoc-in state [:current] (tetromino/random)))
