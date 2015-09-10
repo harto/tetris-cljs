@@ -26,6 +26,9 @@
     (aset ctx k v))
   ctx)
 
+(defn stroke-rect! [ctx x y w h]
+  (doto ctx (.strokeRect x y w h)))
+
 (defn fill-rect! [ctx x y w h]
   (doto ctx (.fillRect x y w h)))
 

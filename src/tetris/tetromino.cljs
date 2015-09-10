@@ -3,14 +3,6 @@
               (tetris.tile :as tile))
     (:use (tetris.core :only (col->x cols row->y))))
 
-(defrecord Tetromino [tiles col row]
-  canvas/Renderable
-  (render [this g]
-    (canvas/save! g)
-    (canvas/translate! g (col->x col) (row->y row))
-    (doseq [t tiles] (canvas/render t g))
-    (canvas/restore! g)))
-
 (defn- count-tiles [tetromino dimension]
   (->> (:tiles tetromino)
        (map dimension)
@@ -22,6 +14,21 @@
 
 (defn height [tetromino]
   (count-tiles tetromino :row))
+
+(defn render-bounding-box [tetromino g]
+  (canvas/set-properties! g {"strokeStyle" "#000"})
+  (let [size (max (width tetromino) (height tetromino))]
+    (canvas/stroke-rect! g 0 0 (col->x size) (row->y size))))
+
+(defrecord Tetromino [tiles col row]
+  canvas/Renderable
+  (render [this g]
+    (canvas/save! g)
+    (canvas/translate! g (col->x col) (row->y row))
+    (doseq [t tiles]
+      (canvas/render t g))
+    (render-bounding-box this g)
+    (canvas/restore! g)))
 
 (defn tiles [{:keys [layout color]}]
   (->> layout
