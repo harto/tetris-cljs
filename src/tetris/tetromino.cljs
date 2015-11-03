@@ -1,19 +1,34 @@
 (ns ^:figwheel-always tetris.tetromino
-    (:require (tetris.lib.canvas :as canvas)
+    (:require (tetris.core :as tetris)
+              (tetris.lib.canvas :as canvas)
               (tetris.tile :as tile))
-    (:use (tetris.core :only (col->x cols row->y))))
+    (:use (tetris.core :only (col->x row->y))))
 
-(defn- count-tiles [tetromino dimension]
-  (->> (:tiles tetromino)
-       (map dimension)
-       (apply max)
-       (inc)))
+(defn col [{:keys [col tiles]}]
+  (+ col (apply min (map :col tiles))))
 
-(defn width [tetromino]
-  (count-tiles tetromino :col))
+(defn row [{:keys [row tiles]}]
+  (+ row (apply min (map :row tiles))))
 
-(defn height [tetromino]
-  (count-tiles tetromino :row))
+(defn width [{:keys [tiles]}]
+  (let [tile-cols (map :col tiles)]
+    (inc (- (apply max tile-cols)
+            (apply min tile-cols)))))
+
+(defn height [{:keys [tiles]}]
+  (let [tile-rows (map :row tiles)]
+    (inc (- (apply max tile-rows)
+            (apply min tile-rows)))))
+
+(defn in-bounds? [tetromino]
+  (let [c (col tetromino)
+        r (row tetromino)
+        w (width tetromino)
+        h (height tetromino)]
+    (and (<= 0 c)
+         (<= 0 r)
+         (<= (+ c w) tetris/cols)
+         (<= (+ r h) tetris/rows))))
 
 (defn render-bounding-box [tetromino g]
   (canvas/set-properties! g {"strokeStyle" "#000"})
@@ -45,6 +60,12 @@
                                               (- offset)
                                               (* (- multiplier))
                                               (+ offset)))))))
+
+(defn move-left [tetromino]
+  (update-in tetromino [:col] dec))
+
+(defn move-right [tetromino]
+  (update-in tetromino [:col] inc))
 
 (defn tiles [{:keys [layout color]}]
   (->> layout
@@ -94,4 +115,4 @@
 
 (defn random []
   (let [t (rand-nth tetrominoes)]
-    (assoc t :col (quot (- cols (width t)) 2) :row 5)))
+    (assoc t :col (quot (- tetris/cols (width t)) 2) :row 5)))
