@@ -17,11 +17,10 @@
   (let [{:keys [tiles tetromino]} state]
     (and (tetromino/in-bounds? tetromino))))
 
-(defn attempt [initial-state & modifiers]
-  (let [new-state (first (filter valid? (for [f modifiers] (f initial-state))))]
-    (if (valid? new-state)
-      new-state
-      initial-state)))
+(defn attempt [initial-state & updates]
+  (if-let [new-state (first (filter valid? (for [f updates] (f initial-state))))]
+    new-state
+    initial-state))
 
 (defn rotate [state]
   (attempt state
