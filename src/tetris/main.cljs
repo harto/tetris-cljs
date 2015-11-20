@@ -11,32 +11,42 @@
 (enable-console-print!)
 
 (defonce state
-  (atom {:tetromino (tetromino/random)}))
+  (atom {:tetromino (tetromino/random)
+         :tiles nil}))
 
 (defn valid? [state]
   (let [{:keys [tiles tetromino]} state]
-    (and (tetromino/in-bounds? tetromino))))
+    (and (tetromino/in-bounds? tetromino)
+         (not-any? #(tetromino/colliding? tetromino %) tiles))))
 
-(defn attempt [initial-state & updates]
+(defn attempt-update [initial-state & updates]
   (if-let [new-state (first (filter valid? (for [f updates] (f initial-state))))]
     new-state
     initial-state))
 
 (defn rotate [state]
-  (attempt state
-           #(update-in % [:tetromino] tetromino/rotate)
-           ;; wall kick
-           #(update-in % [:tetromino] (comp tetromino/rotate tetromino/move-left))
-           #(update-in % [:tetromino] (comp tetromino/rotate tetromino/move-right))))
+  (attempt-update state
+                  #(update-in % [:tetromino] tetromino/rotate)
+                  ;; wall kick
+                  #(update-in % [:tetromino] (comp tetromino/rotate tetromino/move -1 0))
+                  #(update-in % [:tetromino] (comp tetromino/rotate tetromino/move 1 0))))
 
 (defn drop [state]
-  (assoc-in state [:tetromino] (tetromino/random)))
+  (let [possible-states (map (fn [y] (update-in state
+                                                [:tetromino]
+                                                #(tetromino/move % 0 y)))
+                             (range))]
+    (if-let [updated-state (last (take-while valid? possible-states))]
+      (-> updated-state
+          (update-in [:tiles] concat (tetromino/tiles (:tetromino updated-state)))
+          (assoc-in [:tetromino] (tetromino/random)))
+      state)))
 
 (defn move-left [state]
-  (attempt state #(update-in % [:tetromino] tetromino/move-left)))
+  (attempt-update state #(update-in % [:tetromino] tetromino/move-left)))
 
 (defn move-right [state]
-  (attempt state #(update-in % [:tetromino] tetromino/move-right)))
+  (attempt-update state #(update-in % [:tetromino] tetromino/move-right)))
 
 (def handlers {:rotate rotate
                :drop drop
@@ -55,7 +65,9 @@
 
 (defn repaint [g state]
   (canvas/clear! g)
-  (canvas/render (get state :tetromino) g))
+  (doseq [t (:tiles state)]
+    (canvas/render t g))
+  (canvas/render (:tetromino state) g))
 
 (defonce command-queue
   (atom #queue[]))

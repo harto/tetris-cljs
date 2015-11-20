@@ -61,13 +61,26 @@
                                               (* (- multiplier))
                                               (+ offset)))))))
 
-(defn move-left [tetromino]
-  (update-in tetromino [:col] dec))
+(defn move [tetromino x y]
+  (-> tetromino
+      (update-in [:col] + x)
+      (update-in [:row] + y)))
 
-(defn move-right [tetromino]
-  (update-in tetromino [:col] inc))
+(defn tiles [tetromino]
+  (let [offset-x (:col tetromino)
+        offset-y (:row tetromino)]
+    (map (fn [t]
+           (-> t
+               (update-in [:col] + offset-x)
+               (update-in [:row] + offset-y)))
+         (:tiles tetromino))))
 
-(defn tiles [{:keys [layout color]}]
+(defn colliding? [tetromino tile]
+  (let [point (tile/position tile)
+        points (map tile/position (tiles tetromino))]
+    (some #(= point %) points)))
+
+(defn create-tiles [{:keys [layout color]}]
   (->> layout
        (map-indexed (fn [row cs]
                          (map-indexed (fn [col c]
@@ -80,7 +93,7 @@
 
 (def tetrominoes
 
-  (map #(->Tetromino (tiles %) nil nil)
+  (map #(->Tetromino (create-tiles %) nil nil)
 
        [{:layout ["   "
                   "###"

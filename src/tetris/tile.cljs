@@ -8,3 +8,6 @@
     (doto g
       (canvas/set-properties! {"fillStyle" color})
       (canvas/fill-rect! (col->x col) (row->y row) (col-width) (row-height)))))
+
+(defn position [tile]
+  (select-keys tile [:row :col]))
